@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Number 1 Electronics</title>
+    <meta name="description" content="Get in touch with the central corporate office of Number 1 Electronics for general messaging and support.">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <header>
+        <nav class="nav-bar">
+            <a href="index.html">Home</a>
+            <a href="enquiry.html">Service Enquiry</a>
+            <a href="contact.html" class="active">Contact Us</a>
+        </nav>
+    </header>
+
+    <main class="form-container">
+        <h1>Contact Our Corporate Office</h1>
+        <p>Send a general message or complaint directly to our team infrastructure.</p>
+
+        <form id="contactForm" action="https://httpbin.org" method="POST">
+            <div class="form-group">
+                <label for="senderName">Your Name *</label>
+                <input type="text" id="senderName" name="senderName" required>
+                <span class="error-msg" id="senderNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="senderEmail">Your Email *</label>
+                <input type="email" id="senderEmail" name="senderEmail" required>
+                <span class="error-msg" id="senderEmailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="msgType">Message Subject *</label>
+                <select id="msgType" name="msgType" required>
+                    <option value="">-- Select Subject --</option>
+                    <option value="General">General Business Greeting</option>
+                    <option value="Compliment">Service Compliment</option>
+                    <option value="Complaint">Support Complaint Resolution</option>
+                </select>
+                <span class="error-msg" id="msgTypeError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="messageBody">Type Message *</label>
+                <textarea id="messageBody" name="messageBody" rows="5" required></textarea>
+                <span class="error-msg" id="bodyError"></span>
+            </div>
+
+            <button type="submit">Send Message</button>
+        </form>
+
+        <div id="contactResponse" class="response-box" style="display: none;"></div>
+    </main>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        document.getElementById("contactForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+            
+            let isValid = true;
+            const name = document.getElementById("senderName").value.trim();
+            const email = document.getElementById("senderEmail").value.trim();
+            const type = document.getElementById("msgType").value;
+            const message = document.getElementById("messageBody").value.trim();
+
+            if (name === "") {
+                document.getElementById("senderNameError").textContent = "Name cannot be empty.";
+                isValid = false;
+            }
+            if (!email.includes("@")) {
+                document.getElementById("senderEmailError").textContent = "Please enter a valid email.";
+                isValid = false;
+            }
+            if (type === "") {
+                document.getElementById("msgTypeError").textContent = "Please select a message subject.";
+                isValid = false;
+            }
+            if (message.length < 10) {
+                document.getElementById("bodyError").textContent = "Message must be at least 10 characters long.";
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const outBox = document.getElementById("contactResponse");
+            outBox.style.display = "block";
+            outBox.style.backgroundColor = "#fff3cd";
+            outBox.textContent = "Compiling message metrics...";
+
+            fetch("https://httpbin.org", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, type, message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                outBox.style.backgroundColor = "#d4edda";
+                outBox.style.color = "#155724";
+                outBox.innerHTML = `<h3>Message Dispatched!</h3><p>Your <strong>${type}</strong> message has been successfully logged. A copy has been tracked to <strong>${email}</strong>.</p>`;
+            })
+            .catch(err => {
+                outBox.style.backgroundColor = "#f8d7da";
+                outBox.style.color = "#721c24";
+                outBox.textContent = "Error sending message. Try again later.";
+            });
+        });
+    </script>
+</body>
+</html>
